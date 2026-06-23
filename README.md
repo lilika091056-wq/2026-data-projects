@@ -1,2 +1,30 @@
-# 2026-data-projects
-data-analysis-portfolio-supply-pivot 
+# 🌐 AWS Supply Pivot: 글로벌 공급망 리스크 분석 파이프라인
+
+## 📌 프로젝트 개요
+KOTRA 해외시장뉴스 및 Google News RSS 데이터를 수집하여, 글로벌 공급망 이슈(원자재, 관세, 수출통제 등)를 모니터링하고 국가별/유형별 리스크를 평가하는 데이터 파이프라인 및 시각화 대시보드 구축 프로젝트입니다.
+
+## 🏗 아키텍처 및 데이터 파이프라인 흐름
+1. **데이터 수집:** KOTRA API 및 Google News 기반 기초 데이터 수집
+2. **데이터 전처리:** 제목(Title), 요약(Summary), 국가(Country), 날짜(Date) 정제
+3. **AI 기반 리스크 분석:** 사전 정의된 키워드(공급, 규제, 가격 등) 기반 텍스트 매칭
+4. **리스크 스코어링:** 위험 신호 및 키워드 빈도를 바탕으로 3단계(🔴위험, 🟡주의, 🟢관심) 등급 산출
+5. **대응 데이터 연결:** 중진공 공공데이터 API 연동을 통한 대체 공급처 후보 추천
+6. **결과 시각화:** AWS (S3 → Glue → Athena) 파이프라인을 거쳐 Dashboard(Canva/BI) 구축
+
+## 🛠 기술 스택
+- **Language:** Python (Pandas, Requests)
+- **Data Source:** KOTRA API, 중진공 공공데이터 API
+- **Infrastructure / BI:** AWS (S3, Glue, Athena), Canva, QuickSight
+
+## 📊 리스크 평가 로직 (Risk Scoring)
+뉴스 텍스트를 분석하여 3가지 주요 위험 유형으로 자동 분류하고 가중치를 부여합니다.
+- **규제 위험 (80점):** 수출통제, 제재, 관세, 금지, 규제
+- **공급 위험 (70점):** 공급 차질, 부족, 수급, 의존, 물류
+- **가격 위험 (60점):** 가격 상승, 원가, 급등
+- **기타 (30점)**
+
+> **최종 판단 로직:** Score 70 이상(🔴 위험) / 50 이상(🟡 주의) / 50 미만(🟢 관심)
+
+## 📁 파일 설명
+- `supply_risk_analysis.py`: KOTRA API 데이터 수집 및 리스크 스코어링 전처리 로직이 포함된 메인 스크립트
+- `kotra_supply_data_final.csv`: 최종 파이프라인을 거쳐 산출된 국가별/유형별 리스크 분석 결과 데이터셋
